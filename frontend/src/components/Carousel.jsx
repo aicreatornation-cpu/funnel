@@ -63,6 +63,8 @@ export default function Carousel() {
                     src={src}
                     alt={t.name}
                     draggable="false"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => { e.currentTarget.src = AVATAR_FALLBACK; }}
                   />
                 ))}

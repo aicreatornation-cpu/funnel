@@ -1,34 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadVimeo } from '../vimeo';
 
-// Testimonial card video (Vimeo, native controls hidden). Playback is controlled
-// by the parent carousel: only the `active` (centered) card plays, and only once
-// the user has pressed play (`wantPlay`). Moving to another card pauses this one.
-// Plays UNMUTED. Controls: center play/pause, plus mute & fullscreen.
+// Testimonial card video. For fast page loads the heavy Vimeo iframe is NOT
+// created up front — each card shows a lightweight thumbnail until the user
+// presses play (on the centered card). Only the centered card plays; moving
+// away pauses it. Plays UNMUTED. Controls: play/pause, mute, fullscreen.
 export default function TestimonialVideo({ videoId, active, wantPlay, onPlayToggle }) {
   const containerRef = useRef(null);
   const hostRef = useRef(null);
   const playerRef = useRef(null);
+  const [mounted, setMounted] = useState(false); // has the iframe been created?
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
 
+  // Create the player only once this card is active and the user wants playback.
+  useEffect(() => { if (active && wantPlay) setMounted(true); }, [active, wantPlay]);
+
   useEffect(() => {
+    if (!mounted) return;
     let destroyed = false;
     loadVimeo().then((Vimeo) => {
       if (destroyed || !hostRef.current) return;
       const player = new Vimeo.Player(hostRef.current, {
         id: Number(videoId),
-        controls: false,
-        autoplay: false,
-        muted: false,
-        loop: true,
-        autopause: false,
-        dnt: true,
-        title: false,
-        byline: false,
-        portrait: false,
-        responsive: true,
+        controls: false, autoplay: false, muted: false, loop: true,
+        autopause: false, dnt: true, title: false, byline: false, portrait: false, responsive: true,
       });
       playerRef.current = player;
       player.on('play', () => setPlaying(true));
@@ -39,10 +36,9 @@ export default function TestimonialVideo({ videoId, active, wantPlay, onPlayTogg
       destroyed = true;
       try { playerRef.current?.destroy(); } catch { /* ignore */ }
     };
-  }, [videoId]);
+  }, [mounted, videoId]);
 
-  // Play only when this card is centered AND the user wants playback; otherwise
-  // pause. This guarantees a single video plays at a time across the carousel.
+  // Play only when centered AND wanted; otherwise pause (one video at a time).
   useEffect(() => {
     const p = playerRef.current;
     if (!p || !ready) return;
@@ -82,7 +78,18 @@ export default function TestimonialVideo({ videoId, active, wantPlay, onPlayTogg
 
   return (
     <div className="tc-video" ref={containerRef}>
-      <div ref={hostRef} className="tc-video-player" />
+      {/* lightweight thumbnail until the player is created */}
+      {!mounted && (
+        <img
+          className="tc-poster"
+          src={`https://vumbnail.com/${videoId}.jpg`}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+      )}
+      {mounted && <div ref={hostRef} className="tc-video-player" />}
       <div className="tc-video-cover" />
 
       {/* center play/pause — prominent when paused, fades while playing */}
@@ -99,22 +106,23 @@ export default function TestimonialVideo({ videoId, active, wantPlay, onPlayTogg
         )}
       </button>
 
-      {/* corner: mute + fullscreen */}
-      <div className="tc-ctrls">
-        <button className="tc-ctrl" type="button" onClick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
-          {muted ? (
-            <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-          ) : (
-            <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-          )}
-        </button>
-
-        <button className="tc-ctrl" type="button" onClick={toggleFullscreen} aria-label="Fullscreen">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 3H4v4M16 3h4v4M16 21h4v-4M8 21H4v-4" />
-          </svg>
-        </button>
-      </div>
+      {/* mute + fullscreen appear once the video is in use */}
+      {mounted && (
+        <div className="tc-ctrls">
+          <button className="tc-ctrl" type="button" onClick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
+            {muted ? (
+              <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+            ) : (
+              <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+            )}
+          </button>
+          <button className="tc-ctrl" type="button" onClick={toggleFullscreen} aria-label="Fullscreen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H4v4M16 3h4v4M16 21h4v-4M8 21H4v-4" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

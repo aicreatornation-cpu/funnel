@@ -11,8 +11,19 @@ export default function HeroVideo() {
   const hostRef = useRef(null);
   const playerRef = useRef(null);
   const [muted, setMuted] = useState(true);
+  const [show, setShow] = useState(false); // defer the heavy iframe until idle
+
+  // Create the player only after the page has painted / gone idle, so it
+  // doesn't slow the initial load.
+  useEffect(() => {
+    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 200));
+    const cancel = window.cancelIdleCallback || clearTimeout;
+    const id = ric(() => setShow(true));
+    return () => cancel(id);
+  }, []);
 
   useEffect(() => {
+    if (!show) return;
     let destroyed = false;
     loadYouTubeApi().then((YT) => {
       if (destroyed || !hostRef.current) return;
@@ -42,7 +53,7 @@ export default function HeroVideo() {
       destroyed = true;
       try { playerRef.current?.destroy(); } catch { /* ignore */ }
     };
-  }, []);
+  }, [show]);
 
   const toggleMute = () => {
     const p = playerRef.current;
