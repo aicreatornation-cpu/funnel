@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+.claude
+.env
+**/.env
+.env.local
+dist
+**/dist
+.vite
+**/.vite
+npm-debug.log*
+.DS_Store
