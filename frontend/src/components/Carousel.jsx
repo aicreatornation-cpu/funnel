@@ -8,7 +8,7 @@ import TestimonialVideo from './TestimonialVideo';
 // user had pressed play) starts the new one.
 export default function Carousel() {
   const n = testimonials.length;
-  const [active, setActive] = useState(Math.floor(n / 2));
+  const [active, setActive] = useState(0); // start on the first card
   const [wantPlay, setWantPlay] = useState(false); // has the user started playback?
 
   const go = (i) => setActive(Math.max(0, Math.min(n - 1, i)));
