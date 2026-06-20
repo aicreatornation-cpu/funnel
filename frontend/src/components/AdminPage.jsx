@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getLeads, clearLeads } from '../leads';
+import { getLeads } from '../leads';
 
 const fmtDate = (iso) => {
   try { return new Date(iso).toLocaleString(); } catch { return iso; }
@@ -73,16 +73,6 @@ export default function AdminPage() {
 
   useEffect(() => { if (authed) load(); }, [authed]);
 
-  const clearAll = async () => {
-    if (!window.confirm('Delete all leads? This cannot be undone.')) return;
-    try {
-      await clearLeads();
-      setLeads([]);
-    } catch {
-      setError('Failed to clear leads.');
-    }
-  };
-
   const logout = () => {
     sessionStorage.removeItem('tts_admin');
     setAuthed(false);
@@ -99,9 +89,7 @@ export default function AdminPage() {
         </div>
         <div className="admin-actions">
           <button className="admin-btn" onClick={load}>↻ Refresh</button>
-          <button className="admin-btn danger" onClick={clearAll} disabled={!leads.length}>Clear all</button>
           <button className="admin-btn" onClick={logout}>Log out</button>
-          <button className="admin-btn" onClick={goBack}>← Back to site</button>
         </div>
       </div>
 
