@@ -40,8 +40,8 @@ export const videoTypes = ['🎂 Birthday', '💍 Wedding', '❤️ Anniversary'
 export const durations = [
   { label: '30 Sec', short: '30s', long: '30 Seconds', original: '₹2,499', discount: '− ₹500',   saved: '− ₹500 saved',   final: '₹1,999' },
   { label: '1 Min',  short: '1m',  long: '1 Minute',   original: '₹4,999', discount: '− ₹1,000', saved: '− ₹1,000 saved', final: '₹3,999' },
-  { label: '2 Min',  short: '2m',  long: '2 Minutes',  original: '₹5,999', discount: '− ₹1,000', saved: '− ₹1,000 saved', final: '₹4,999' },
-  { label: '3 Min',  short: '3m',  long: '3 Minutes',  original: '₹7,999', discount: '− ₹1,000', saved: '− ₹1,000 saved', final: '₹6,999' },
+  { label: '2 Min',  short: '2m',  long: '2 Minutes',  original: '₹6,999', discount: '− ₹2,000', saved: '− ₹2,000 saved', final: '₹4,999' },
+  { label: '3 Min',  short: '3m',  long: '3 Minutes',  original: '₹9,999', discount: '− ₹3,000', saved: '− ₹3,000 saved', final: '₹6,999' },
 ];
 export const sliderPositions = [0, 33, 66, 100];
 
