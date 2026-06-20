@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadVimeo } from '../vimeo';
 
-// Testimonial card video — a Vimeo video with native controls hidden. It does
-// NOT autoplay: it starts paused with a center play button, and plays UNMUTED
-// when tapped. Extra controls: mute/unmute and fullscreen.
-export default function TestimonialVideo({ videoId }) {
+// Testimonial card video (Vimeo, native controls hidden). Playback is controlled
+// by the parent carousel: only the `active` (centered) card plays, and only once
+// the user has pressed play (`wantPlay`). Moving to another card pauses this one.
+// Plays UNMUTED. Controls: center play/pause, plus mute & fullscreen.
+export default function TestimonialVideo({ videoId, active, wantPlay, onPlayToggle }) {
   const containerRef = useRef(null);
   const hostRef = useRef(null);
   const playerRef = useRef(null);
+  const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
 
@@ -17,8 +19,8 @@ export default function TestimonialVideo({ videoId }) {
       if (destroyed || !hostRef.current) return;
       const player = new Vimeo.Player(hostRef.current, {
         id: Number(videoId),
-        controls: false,   // hide Vimeo's own controls
-        autoplay: false,   // wait for the user to press play
+        controls: false,
+        autoplay: false,
         muted: false,
         loop: true,
         autopause: false,
@@ -31,6 +33,7 @@ export default function TestimonialVideo({ videoId }) {
       playerRef.current = player;
       player.on('play', () => setPlaying(true));
       player.on('pause', () => setPlaying(false));
+      player.ready().then(() => { if (!destroyed) setReady(true); });
     });
     return () => {
       destroyed = true;
@@ -38,32 +41,37 @@ export default function TestimonialVideo({ videoId }) {
     };
   }, [videoId]);
 
-  // Play always starts UNMUTED (a tap is a user gesture, so sound is allowed).
-  const togglePlay = (e) => {
-    e.stopPropagation();
+  // Play only when this card is centered AND the user wants playback; otherwise
+  // pause. This guarantees a single video plays at a time across the carousel.
+  useEffect(() => {
     const p = playerRef.current;
-    if (!p) return;
-    if (playing) {
-      p.pause();
+    if (!p || !ready) return;
+    if (active && wantPlay) {
+      p.setMuted(muted);
+      p.play().catch(() => { p.setMuted(true); setMuted(true); p.play().catch(() => {}); });
     } else {
-      p.setMuted(false);
-      p.setVolume(1);
-      setMuted(false);
-      p.play().catch(() => {});
+      p.pause().catch(() => {});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, wantPlay, ready]);
+
+  const togglePlay = (e) => {
+    if (!active) return; // let the click bubble up to center this card
+    e.stopPropagation();
+    onPlayToggle(!wantPlay);
   };
 
   const toggleMute = (e) => {
+    if (!active) return;
     e.stopPropagation();
     const p = playerRef.current;
-    if (!p) return;
-    const next = !muted;
-    p.setMuted(next);
-    if (!next) p.setVolume(1);
-    setMuted(next);
+    const nextMuted = !muted;
+    setMuted(nextMuted);
+    if (p) { p.setMuted(nextMuted); if (!nextMuted) p.setVolume(1); }
   };
 
   const toggleFullscreen = (e) => {
+    if (!active) return;
     e.stopPropagation();
     const el = containerRef.current;
     if (document.fullscreenElement) { document.exitFullscreen?.(); return; }
@@ -75,7 +83,6 @@ export default function TestimonialVideo({ videoId }) {
   return (
     <div className="tc-video" ref={containerRef}>
       <div ref={hostRef} className="tc-video-player" />
-      {/* transparent cover so the player can't be tapped directly */}
       <div className="tc-video-cover" />
 
       {/* center play/pause — prominent when paused, fades while playing */}

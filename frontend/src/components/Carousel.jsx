@@ -1,15 +1,29 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { testimonials, AVATAR_FALLBACK } from '../data/funnelData';
 import TestimonialVideo from './TestimonialVideo';
 
 // Coverflow 3D-fan carousel: the active card sits centre/front, the rest fan out
-// behind it on each side. Prev/next arrows (and clicking a side card) move focus.
+// behind it. Navigate with arrows, by tapping a side card, or by swiping (touch).
+// Only the centred card's video plays — moving stops the previous and (if the
+// user had pressed play) starts the new one.
 export default function Carousel() {
   const n = testimonials.length;
   const [active, setActive] = useState(Math.floor(n / 2));
+  const [wantPlay, setWantPlay] = useState(false); // has the user started playback?
 
-  const prev = () => setActive((a) => Math.max(0, a - 1));
-  const next = () => setActive((a) => Math.min(n - 1, a + 1));
+  const go = (i) => setActive(Math.max(0, Math.min(n - 1, i)));
+  const prev = () => go(active - 1);
+  const next = () => go(active + 1);
+
+  // swipe to navigate (touch)
+  const touchX = useRef(null);
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 40) (dx < 0 ? next : prev)();
+    touchX.current = null;
+  };
 
   // 3D transform per card based on its distance from the active index.
   const styleFor = (i) => {
@@ -32,13 +46,13 @@ export default function Carousel() {
         <h2>CLIENT TESTIMONIALS</h2>
       </div>
 
-      <div className="cf-stage">
+      <div className="cf-stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         {testimonials.map((t, i) => (
           <div
             key={i}
             className={`cf-item${i === active ? ' cf-center' : ''}`}
             style={styleFor(i)}
-            onClick={() => i !== active && setActive(i)}
+            onClick={() => i !== active && go(i)}
           >
             <div className="tc-card">
               <div className="tc-avatars">
@@ -60,7 +74,12 @@ export default function Carousel() {
               </div>
 
               {t.videoId ? (
-                <TestimonialVideo videoId={t.videoId} />
+                <TestimonialVideo
+                  videoId={t.videoId}
+                  active={i === active}
+                  wantPlay={wantPlay}
+                  onPlayToggle={setWantPlay}
+                />
               ) : (
                 <div className="tc-video">
                   <div className="tc-play">
