@@ -956,6 +956,74 @@ body {
 .pay-btn:hover .pay-arrow { transform: translateX(4px); }
 .pay-btn:active { transform: translateY(0); }
 
+/* ── Admin login ── */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.admin-login-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--black-3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  text-align: center;
+}
+.admin-login-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  letter-spacing: 0.04em;
+  color: var(--white);
+}
+.admin-login-sub { font-size: 13px; color: var(--grey); margin: 4px 0 22px; }
+.admin-login-input {
+  width: 100%;
+  background: var(--black-4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  outline: none;
+  transition: border 0.2s;
+}
+.admin-login-input:focus { border-color: var(--gold); }
+.admin-login-input.invalid { border-color: #EF4444; }
+.admin-login-input::placeholder { color: var(--grey); }
+.admin-login-err { text-align: left; font-size: 12px; color: #EF4444; margin-top: 8px; }
+.admin-login-btn {
+  width: 100%;
+  margin-top: 18px;
+  background: linear-gradient(135deg, var(--gold) 0%, #D4A017 100%);
+  color: var(--black);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  padding: 14px 24px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(245,197,24,0.4); }
+.admin-login-back {
+  display: inline-block;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  color: var(--grey-light);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+.admin-login-back:hover { color: var(--gold); }
+
 /* ── Admin / leads page ── */
 .admin {
   min-height: 100vh;

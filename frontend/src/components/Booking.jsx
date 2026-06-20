@@ -56,8 +56,8 @@ export default function Booking({ booking, update, errors = {}, clearError, onPr
           </div>
           <div className="form-group">
             <label className="form-label">Phone Number <span className="req">*</span></label>
-            <input className={`form-input${errors.phone ? ' invalid' : ''}`} type="tel" placeholder="+91 98765 43210"
-              value={phone} onChange={(e) => { update({ phone: e.target.value }); clearError?.('phone'); }} />
+            <input className={`form-input${errors.phone ? ' invalid' : ''}`} type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit mobile number"
+              value={phone} onChange={(e) => { update({ phone: e.target.value.replace(/\D/g, '').slice(0, 10) }); clearError?.('phone'); }} />
             {errors.phone && <div className="field-error">{errors.phone}</div>}
           </div>
           <div className="form-group">

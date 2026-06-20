@@ -5,8 +5,56 @@ const fmtDate = (iso) => {
   try { return new Date(iso).toLocaleString(); } catch { return iso; }
 };
 
-// Admin view (route: #admin) — lists all captured leads from Supabase.
+// NOTE: this is a simple client-side gate. The password ships in the frontend
+// bundle, so it deters casual access but is NOT real security. For proper
+// protection the password check (and the /api/leads endpoint) must be moved
+// server-side.
+const ADMIN_PASSWORD = 'tts123$';
+
+const goBack = () => {
+  window.history.pushState({}, '', '/');
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
+// Password-only login screen.
+function AdminLogin({ onSuccess }) {
+  const [pw, setPw] = useState('');
+  const [err, setErr] = useState('');
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem('tts_admin', 'ok');
+      onSuccess();
+    } else {
+      setErr('Incorrect password');
+    }
+  };
+
+  return (
+    <div className="admin-login">
+      <form className="admin-login-card" onSubmit={submit}>
+        <h1 className="admin-login-title">Admin Login</h1>
+        <p className="admin-login-sub">Enter the password to view leads.</p>
+        <input
+          type="password"
+          className={`admin-login-input${err ? ' invalid' : ''}`}
+          placeholder="Password"
+          value={pw}
+          autoFocus
+          onChange={(e) => { setPw(e.target.value); if (err) setErr(''); }}
+        />
+        {err && <div className="admin-login-err">{err}</div>}
+        <button type="submit" className="admin-login-btn">Sign in</button>
+        <button type="button" className="admin-login-back" onClick={goBack}>← Back to site</button>
+      </form>
+    </div>
+  );
+}
+
+// Admin view (route: /admin) — password-gated list of leads from Supabase.
 export default function AdminPage() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem('tts_admin') === 'ok');
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,7 +71,7 @@ export default function AdminPage() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (authed) load(); }, [authed]);
 
   const clearAll = async () => {
     if (!window.confirm('Delete all leads? This cannot be undone.')) return;
@@ -35,10 +83,12 @@ export default function AdminPage() {
     }
   };
 
-  const goBack = () => {
-    window.history.pushState({}, '', '/');
-    window.dispatchEvent(new PopStateEvent('popstate'));
+  const logout = () => {
+    sessionStorage.removeItem('tts_admin');
+    setAuthed(false);
   };
+
+  if (!authed) return <AdminLogin onSuccess={() => setAuthed(true)} />;
 
   return (
     <div className="admin">
@@ -50,6 +100,7 @@ export default function AdminPage() {
         <div className="admin-actions">
           <button className="admin-btn" onClick={load}>↻ Refresh</button>
           <button className="admin-btn danger" onClick={clearAll} disabled={!leads.length}>Clear all</button>
+          <button className="admin-btn" onClick={logout}>Log out</button>
           <button className="admin-btn" onClick={goBack}>← Back to site</button>
         </div>
       </div>
