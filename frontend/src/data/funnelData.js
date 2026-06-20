@@ -19,11 +19,11 @@ export const heroStats = [
 // Carousel testimonials. `avatars` are the two faces that peek over the card top;
 // swap these URLs (and add a real `video` link) when the backend is ready.
 export const testimonials = [
-  { name: 'Father & Daughter', designation: 'Birthday Special', avatars: ['/v1.jpeg', '/v1.1.jpeg'], videoId: '1203095740' },
-  { name: 'Rohan Mehta',   designation: 'Birthday Special', avatars: ['https://i.pravatar.cc/160?img=33', 'https://i.pravatar.cc/160?img=51'] },
-  { name: 'Sneha Nair',    designation: 'Anniversary',      avatars: ['https://i.pravatar.cc/160?img=9',  'https://i.pravatar.cc/160?img=60'] },
-  { name: 'Karthik Rao',   designation: 'Graduation',       avatars: ['https://i.pravatar.cc/160?img=68', 'https://i.pravatar.cc/160?img=14'] },
-  { name: 'Divya Shah',    designation: 'Baby Shower',       avatars: ['https://i.pravatar.cc/160?img=24', 'https://i.pravatar.cc/160?img=44'] },
+  { name: 'Father & Daughter', designation: 'Birthday Special',     avatars: ['/v1.jpeg', '/v1.1.jpeg'], videoId: '1203095740' },
+  { name: 'Husband & Wife',    designation: 'Birthday Celebration', avatars: ['/v2.jpeg', '/v2.1.jpeg'], videoId: '1203096555' },
+  { name: 'Father & Daughter', designation: 'Birthday Celebration', avatars: ['/v3.jpeg', '/v3.1.jpeg'], videoId: '1203096556' },
+  { name: 'Husband & Wife',    designation: 'Anniversary Video',    avatars: ['/v4.jpeg', '/v4.1.jpeg'], videoId: '1203096557' },
+  { name: 'Husband & Wife',    designation: 'Surprise Gift',        avatars: ['/v5.jpeg', '/v5.1.jpeg'], videoId: '1203098940' },
 ];
 
 // Shown if an avatar image fails to load (neutral grey silhouette).
