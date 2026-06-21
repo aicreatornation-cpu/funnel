@@ -26,7 +26,9 @@ export default function TestimonialVideo({ videoId, active, wantPlay, onPlayTogg
         id: Number(videoId),
         controls: false, autoplay: false, muted: false, loop: true,
         autopause: false, dnt: true, title: false, byline: false, portrait: false, responsive: true,
+        quality: 'auto', // adapt resolution to the viewer's network speed
       });
+      player.setQuality?.('auto').catch(() => {});
       playerRef.current = player;
       player.on('play', () => setPlaying(true));
       player.on('pause', () => setPlaying(false));
@@ -94,7 +96,7 @@ export default function TestimonialVideo({ videoId, active, wantPlay, onPlayTogg
 
       {/* center play/pause — prominent when paused, fades while playing */}
       <button
-        className={`tc-play-btn${playing ? ' playing' : ''}`}
+        className={`tc-play-btn${(playing || (active && wantPlay)) ? ' playing' : ''}`}
         type="button"
         onClick={togglePlay}
         aria-label={playing ? 'Pause' : 'Play'}
